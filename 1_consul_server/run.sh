@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export CONTAINER="consul-01"
+export HOSTNAME="$CONTAINER.example.com"
 
 docker stop $CONTAINER 2>&1
 docker rm   $CONTAINER 2>&1

@@ -1,6 +1,6 @@
 {
   "datacenter"       : "Marvel_DC",
-  "node_name"        : "consul_srv-01",
+  "node_name"        : "consul-01",
   "client_addr"      : "0.0.0.0",
   "advertise_addr"   : "172.16.10.1",
   "server"           : true,
@@ -31,8 +31,8 @@
         "address"  : "",
         "tags" : [ 
            "linux",
-           "consul-server",
-           "consul-srv"
+           "consul",
+           "consul-server"
         ],
         "meta" : {
            "meta"  : "I am a meta." 
