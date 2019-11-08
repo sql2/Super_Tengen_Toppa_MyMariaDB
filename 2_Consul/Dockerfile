@@ -40,7 +40,7 @@ RUN unzip /root/consul_1.6.1_linux_amd64.zip -d /root/ && \
     mv /root/consul /usr/local/bin/ && \
     mkdir -p /etc/consul.d/
 
-COPY config.json /etc/consul.d/config.json
+COPY consul_server.json /etc/consul.d/consul_server.json
 
 # -----------------------------------------------------------------------------
 # Install dnsmasq
