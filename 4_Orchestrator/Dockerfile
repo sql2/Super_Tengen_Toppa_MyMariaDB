@@ -22,13 +22,23 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 ###############################################################################
 # BEGIN INSTALLATION
 ###############################################################################
+# -----------------------------------------------------------------------------
+# Install additional packages
+# -----------------------------------------------------------------------------
+RUN yum -y --setopt=tsflags=nodocs install epel-release wget unzip dnsmasq bind-utils jq
+
+# -----------------------------------------------------------------------------
+# Install jq
+# -----------------------------------------------------------------------------
+#ADD https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 /usr/local/bin/
+#RUN chmod +x /usr/local/bin/jq-linux64 && \
+#                mv /usr/local/bin/jq-linux64 /usr/local/bin/jq
 
 # -----------------------------------------------------------------------------
 # Install Orchestrator
 # -----------------------------------------------------------------------------
-RUN yum -y --setopt=tsflags=nodocs install wget unzip dnsmasq bind-utils && \
-yum -y --setopt=tsflags=nodocs install https://github.com/github/orchestrator/releases/download/v3.1.2/orchestrator-3.1.2-1.x86_64.rpm && \
-yum -y --setopt=tsflags=nodocs install https://github.com/github/orchestrator/releases/download/v3.1.2/orchestrator-cli-3.1.2-1.x86_64.rpm
+RUN yum -y --setopt=tsflags=nodocs install https://github.com/github/orchestrator/releases/download/v3.1.2/orchestrator-3.1.2-1.x86_64.rpm && \
+    yum -y --setopt=tsflags=nodocs install https://github.com/github/orchestrator/releases/download/v3.1.2/orchestrator-cli-3.1.2-1.x86_64.rpm
 
 
 COPY orchestrator.conf.json /etc/orchestrator.conf.json

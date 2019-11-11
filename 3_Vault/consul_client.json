@@ -1,6 +1,6 @@
 {
   "datacenter"     : "Marvel_DC",
-  "node_name"      : "vault",
+  "node_name"      : "vault_s1",
   "client_addr"    : "0.0.0.0",
   "advertise_addr" : "172.16.30.1",
   "server"         : false,

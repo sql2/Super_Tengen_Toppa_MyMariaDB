@@ -1,5 +1,5 @@
 ###############################################################################
-# Dockerfile to build Orchestrator container images
+# Dockerfile to build Consul container images
 # Based on Centos 7
 ###############################################################################
 
@@ -26,10 +26,6 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 # Install additional packages
 # -----------------------------------------------------------------------------
 RUN yum -y --setopt=tsflags=nodocs install unzip dnsmasq bind-utils
-
-ADD https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 /usr/local/bin/
-RUN chmod +x /usr/local/bin/jq-linux64 && \
-		mv /usr/local/bin/jq-linux64 /usr/local/bin/jq
 
 # -----------------------------------------------------------------------------
 # Install consul
