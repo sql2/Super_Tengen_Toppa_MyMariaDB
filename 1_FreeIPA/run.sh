@@ -13,7 +13,7 @@ sudo setsebool -P container_manage_cgroup 1
 docker run --name $CONTAINER -it \
 	--hostname $HOSTNAME \
 	--net marvel_dc \
-	--ip 172.16.20.1 \
+	--ip 172.16.10.1 \
 	--sysctl net.ipv6.conf.all.disable_ipv6=0 \
 	-p ${BIND}:80:80 -p ${BIND}:443:443 \
 	-p ${BIND}:389:389 -p ${BIND}:636:636 \
