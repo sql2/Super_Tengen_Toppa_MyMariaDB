@@ -16,11 +16,11 @@ docker run --name pmm-server \
 	--volumes-from pmm-data \
 	--restart always \
 	--net marvel_dc \
-	--ip 172.16.30.1 \
+	--ip 172.16.50.1 \
 	--publish 80:80 \
 	--publish 443:443 \
 	--env ORCHESTRATOR_ENABLED=false \
 	--detach \
 	percona/pmm-server
 
-docker exec -it consul-server consul kv put pmm-server "172.16.30.1"
+docker exec -it consul-server consul kv put pmm-server "172.16.50.1"
