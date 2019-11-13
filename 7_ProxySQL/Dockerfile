@@ -34,7 +34,7 @@ RUN chmod +x /usr/local/bin/jq-linux64 && \
 # -----------------------------------------------------------------------------
 # Install the Percona repository package
 # -----------------------------------------------------------------------------
-RUN yum -y --setopt=tsflags=nodocs install http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm
+RUN yum -y --setopt=tsflags=nodocs install https://www.percona.com/redir/downloads/percona-release/redhat/percona-release-1.0-13.noarch.rpm 
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-Percona
 
 # -----------------------------------------------------------------------------
@@ -46,13 +46,13 @@ COPY proxysql.cnf /etc/proxysql.cnf
 # -----------------------------------------------------------------------------
 # Install consul
 # -----------------------------------------------------------------------------
-ADD https://releases.hashicorp.com/consul/1.4.0/consul_1.4.0_linux_amd64.zip /root/
-RUN unzip /root/consul_1.4.0_linux_amd64.zip -d /root/ && \
-    rm -f /root/consul_1.4.0_linux_amd64.zip && \
+ADD https://releases.hashicorp.com/consul/1.6.1/consul_1.6.1_linux_amd64.zip /root/
+RUN unzip /root/consul_1.6.1_linux_amd64.zip -d /root/ && \
+    rm -f /root/consul_1.6.1_linux_amd64.zip && \
     mv /root/consul /usr/local/bin/ && \
     mkdir -p /etc/consul.d/
 
-COPY config.json /etc/consul.d/config.json
+COPY consul_cleint.json /etc/consul.d/consul_client.json
 
 # -----------------------------------------------------------------------------
 # Copy script utility
