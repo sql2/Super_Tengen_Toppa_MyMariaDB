@@ -21,26 +21,17 @@ consul agent -config-file=/etc/consul.d/consul_client.json &
 MYSQL_REPORT_HOST=$(/sbin/ip route | awk '/kernel/ { print $9 }')
 MYSQL_SERVER_ID="${MYSQL_REPORT_HOST//./}"
 
-sed -i -e "s/#HOSTNAME/${HOSTNAME}/g"             /etc/mysql/mariadb.conf.d/50-server.cnf 
+sed -i -e "s/#HOSTNAME/${HOSTNAME_SHORT}/g"       /etc/mysql/mariadb.conf.d/50-server.cnf 
 sed -i -e "s/#REPORT_HOST/${MYSQL_REPORT_HOST}/g" /etc/mysql/mariadb.conf.d/50-server.cnf
 sed -i -e "s/#SERVER_ID/${MYSQL_SERVER_ID}/g"     /etc/mysql/mariadb.conf.d/50-server.cnf
 
-DATADIR="/var/lib/mysql"
-SOCKETDIR="/var/run/mysqld/"
 SOCKET="/var/run/mysqld/mysqld.sock"
-CMD=(mysql --protocol=socket -uroot --socket="$SOCKET")
-
-rm -rf "$DATADIR"
-mkdir -p "$DATADIR"
-mkdir -p "$SOCKETDIR"
-chown -R mysql:mysql "$DATADIR"
-chown -R mysql:root "$SOCKETDIR"
-> /var/log/mysql/error.log
+CMD=(mysql -uroot --socket="$SOCKET")
 
 echo '[Entrypoint] starting database.'
-mysqld_safe
+mysqld_safe &
 
-if [ ! -z "" ];
+if [ -z "" ];
 then
   for i in {30..0}; do
     if mysqladmin --socket="$SOCKET" ping &>/dev/null; then
@@ -55,9 +46,8 @@ then
   fi
 fi
 
-echo "[Entrypoint] Populate TimeZone..."
 # With "( .. ) 2> /dev/null" suppress any std[out/err].
-( mysql_tzinfo_to_sql --leap /usr/share/zoneinfo/Asia/Seoul | "${CMD[@]}" mysql --force ) 2> /dev/null
+mysql_tzinfo_to_sql --leap /usr/share/zoneinfo/Asia/Seoul | "${CMD[@]}" mysql --force 2> /dev/null
 
 echo "[Entrypoint] Create users."
 "${CMD[@]}" <<-EOSQL
@@ -104,8 +94,9 @@ FLUSH PRIVILEGES;
 SET @@SESSION.SQL_LOG_BIN=1;
 EOSQL
 
+
+echo "[Entrypoint] shutdown database."
 mysqladmin shutdown -uroot --socket="$SOCKET"
 
-echo '[Entrypoint] MySQL init process done. Ready for start up.'
-mysqld 
-
+echo "[Entrypoint] restarting database."
+mysqld_safe
