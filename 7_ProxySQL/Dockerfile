@@ -11,7 +11,7 @@ MAINTAINER hyeongchae@gmail.com
 
 LABEL vendor="hyeongchae" \
       description="ProxySQL on Centos 7" \
-      version="1.4.122"
+      version="2.0.7"
 
 # Update the repository sources list
 RUN yum -y --setopt=tsflags=nodocs update
@@ -25,7 +25,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 # -----------------------------------------------------------------------------
 # Install additional packages
 # -----------------------------------------------------------------------------
-RUN yum -y --setopt=tsflags=nodocs install which wget unzip sysvinit-tools initscripts
+RUN yum -y --setopt=tsflags=nodocs install which wget unzip sysvinit-tools initscripts dnsmasq
 
 ADD https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 /usr/local/bin/
 RUN chmod +x /usr/local/bin/jq-linux64 && \
@@ -34,13 +34,13 @@ RUN chmod +x /usr/local/bin/jq-linux64 && \
 # -----------------------------------------------------------------------------
 # Install the Percona repository package
 # -----------------------------------------------------------------------------
-RUN yum -y --setopt=tsflags=nodocs install https://www.percona.com/redir/downloads/percona-release/redhat/percona-release-1.0-13.noarch.rpm 
+RUN yum -y --setopt=tsflags=nodocs install https://repo.percona.com/centos/7Server/RPMS/noarch/percona-release-0.1-10.noarch.rpm 
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-Percona
 
 # -----------------------------------------------------------------------------
-# Install ProxySQL and MySQL Client
+# Install ProxySQL, PMM client, MySQL client 
 # -----------------------------------------------------------------------------
-RUN yum -y --setopt=tsflags=nodocs install proxysql Percona-Server-client-57 pmm-client
+RUN yum -y --setopt=tsflags=nodocs install proxysql2 Percona-Server-client-57 pmm-client
 COPY proxysql.cnf /etc/proxysql.cnf
 
 # -----------------------------------------------------------------------------
@@ -52,7 +52,12 @@ RUN unzip /root/consul_1.6.1_linux_amd64.zip -d /root/ && \
     mv /root/consul /usr/local/bin/ && \
     mkdir -p /etc/consul.d/
 
-COPY consul_cleint.json /etc/consul.d/consul_client.json
+COPY consul_client.json /etc/consul.d/consul_client.json
+
+# -----------------------------------------------------------------------------
+# Install dnsmasq
+# -----------------------------------------------------------------------------
+COPY 10-consul /etc/dnsmasq.d
 
 # -----------------------------------------------------------------------------
 # Copy script utility
