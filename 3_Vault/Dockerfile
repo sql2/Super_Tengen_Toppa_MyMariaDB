@@ -48,6 +48,7 @@ RUN unzip /root/vault_1.2.4_linux_amd64.zip -d /root/ && \
     mkdir -p /etc/vault.d/
 
 COPY mysql_policy.hcl /etc/vault.d/
+COPY ldap_policy.hcl /etc/vault.d/
 
 # -----------------------------------------------------------------------------
 # Install dnsmasq

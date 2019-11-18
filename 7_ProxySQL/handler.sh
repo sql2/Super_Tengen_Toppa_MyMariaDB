@@ -49,6 +49,17 @@ SET admin-web_enabled='true';
 LOAD ADMIN VARIABLES TO RUNTIME;
 "
 
+# with LDAP
+#mysql -h 127.0.0.1 -u admin -padmin -P 6032 --execute="
+#UPDATE GLOBAL_VARIABLES SET variable_vaule = 'ldap://172.16.10.1' WHERE variable_name = 'ldap-uri';
+#UPDATE GLOBAL_VARIABLES SET variable_vaule = 'DC=example,DC=test' WHERE variable_name = 'ldap-root_dn';
+#UPDATE GLOBAL_VARIABLES SET variable_vaule = '@example.test' WHERE variable_name = 'ldap-bind_dn_suffix';
+#UPDATE GLOBAL_VARIABLES SET variable_vaule = '@example.test' WHERE variable_name = 'ldap-bind_dn_suffix';
+
+#LOAD LDAP VARIABLES TO RUNTIME;
+#SAVE LDAP VARIABLES TO DISK;
+#"
+
 PMMSERVER_IP=$(consul kv get pmm-server)
 
 pmm-admin config --force --server ${PMMSERVER_IP}

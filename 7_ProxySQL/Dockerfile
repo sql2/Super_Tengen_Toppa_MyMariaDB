@@ -34,13 +34,14 @@ RUN chmod +x /usr/local/bin/jq-linux64 && \
 # -----------------------------------------------------------------------------
 # Install the Percona repository package
 # -----------------------------------------------------------------------------
-RUN yum -y --setopt=tsflags=nodocs install https://repo.percona.com/centos/7Server/RPMS/noarch/percona-release-0.1-10.noarch.rpm 
+RUN yum -y --setopt=tsflags=nodocs install https://repo.percona.com/yum/percona-release-latest.noarch.rpm 
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-Percona
+RUN percona-release setup ps80
 
 # -----------------------------------------------------------------------------
 # Install ProxySQL, PMM client, MySQL client 
 # -----------------------------------------------------------------------------
-RUN yum -y --setopt=tsflags=nodocs install proxysql2 Percona-Server-client-57 pmm-client
+RUN yum -y --setopt=tsflags=nodocs install proxysql2 pmm-client Percona-Server-client-57
 COPY proxysql.cnf /etc/proxysql.cnf
 
 # -----------------------------------------------------------------------------

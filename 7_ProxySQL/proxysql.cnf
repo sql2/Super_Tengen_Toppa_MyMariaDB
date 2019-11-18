@@ -1,4 +1,5 @@
 datadir="/var/lib/proxysql"
+#ldap_auth_plugin="/usr/lib64/mysql/plugin/authentication_ldap_sasl_client.so"
 
 admin_variables =
 {

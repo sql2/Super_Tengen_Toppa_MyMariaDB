@@ -35,7 +35,7 @@ LOCAL_IP=$(awk 'END{print $1}' /etc/hosts)
 
 echo "--> Local IP Address: ${LOCAL_IP}"
 echo "--> Check MySQL Server in local is running..."
-while ! mysqladmin ping --host=$LOCAL_IP --user="monitor" --password="monitor" --silent > /dev/null 2>&1 ; do
+while ! mysqladmin ping --host=$LOCAL_IP --user="monitor" --password="monit0r" --silent > /dev/null 2>&1 ; do
   sleep 10
 done
 
