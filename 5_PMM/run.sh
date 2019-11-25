@@ -16,6 +16,7 @@ docker run --name pmm-server \
 	--volumes-from pmm-data \
 	--restart always \
 	--net marvel_dc \
+	--dns-search "example.test" \
 	--ip 172.16.50.1 \
 	--publish 580:80 \
 	--publish 5443:443 \
