@@ -3,7 +3,7 @@ datadir="/var/lib/proxysql"
 
 admin_variables =
 {
-  admin_credentials="admin:admin"
+  admin_credentials="admin:admin;root:root"
   mysql_ifaces="0.0.0.0:6032"
   refresh_interval=2000
 }
@@ -20,13 +20,13 @@ mysql_variables =
   have_compress=true
   interfaces="0.0.0.0:3306;/tmp/proxysql_admin.sock"
   max_connections=100
+  monitor_username="monit0r"
+  monitor_password="monitor"
   monitor_connect_interval=60000
   monitor_history=600000
-  monitor_password="monitor"
   monitor_ping_interval=10000
   monitor_read_only_interval=1500
   monitor_read_only_timeout=500
-  monitor_username="monitor"
   ping_timeout_server=500
   poll_timeout=2000
   sessions_sort=true

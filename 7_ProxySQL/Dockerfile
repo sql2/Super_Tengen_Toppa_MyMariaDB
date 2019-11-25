@@ -41,7 +41,7 @@ RUN percona-release setup ps80
 # -----------------------------------------------------------------------------
 # Install ProxySQL, PMM client, MySQL client 
 # -----------------------------------------------------------------------------
-RUN yum -y --setopt=tsflags=nodocs install proxysql2 pmm-client Percona-Server-client-57
+RUN yum -y --setopt=tsflags=nodocs install proxysql2 pmm-client percona-server-client 
 COPY proxysql.cnf /etc/proxysql.cnf
 
 # -----------------------------------------------------------------------------
