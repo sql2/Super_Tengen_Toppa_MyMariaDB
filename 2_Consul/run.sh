@@ -10,6 +10,7 @@ docker rm   $CONTAINER 2>&1
 docker run --name  $CONTAINER \
 	--hostname $HOSTNAME \
 	--net marvel_dc \
+	--dns-search "example.test" \
 	--ip 172.16.20.1 \
 	--publish ${BIND}:8300:8300 \
 	--publish ${BIND}:8301:8301 \
