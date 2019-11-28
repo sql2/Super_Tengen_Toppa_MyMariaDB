@@ -1,0 +1,41 @@
+SET @@SESSION.SQL_LOG_BIN=0;
+
+DROP DATABASE IF EXISTS test;
+
+-- Sample
+CREATE DATABASE IF NOT EXISTS dummy;
+CREATE TABLE dummy.tbl ( col int );
+
+-- Orch database
+CREATE DATABASE IF NOT EXISTS orchestrator;
+
+-- Orch account
+GRANT ALL PRIVILEGES ON orchestrator.* TO 'orchestrator'@'%' IDENTIFIED BY 'orchestrator';
+GRANT SUPER, PROCESS, REPLICATION SLAVE, RELOAD ON *.* TO 'orchestrator'@'%';
+GRANT ALL PRIVILEGES ON orchestrator.* TO 'orchestrator'@'localhost' IDENTIFIED BY 'orchestrator';
+GRANT SUPER, PROCESS, REPLICATION SLAVE, RELOAD ON *.* TO 'orchestrator'@'localhost';
+GRANT ALL PRIVILEGES ON orchestrator.* TO 'orchestrator'@'localhost' IDENTIFIED BY 'orchestrator';
+
+-- Replication
+CHANGE MASTER TO MASTER_USER = 'repl', MASTER_PASSWORD = 'repl';
+GRANT REPLICATION SLAVE ON *.* TO 'repl'@'172.16.40.%' IDENTIFIED BY 'repl';
+
+-- ProxySQL
+GRANT ALL ON *.* TO 'admin'@'%' IDENTIFIED BY 'admin' WITH GRANT OPTION;
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX ON *.* TO 'sandbox'@'%' IDENTIFIED BY 'sandbox';
+GRANT SELECT, CREATE USER, REPLICATION CLIENT, SHOW DATABASES, SUPER, PROCESS ON *.* TO 'monitor'@'%' IDENTIFIED BY 'monitor
+';
+
+-- PMM
+CREATE USER IF NOT EXISTS 'pmm'@'%' IDENTIFIED BY 'pass';
+GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 
+10;
+GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
+
+-- LDAP PAM Plugin
+CREATE USER 'sql2'@'%' IDENTIFIED VIA pam USING 'mariadb';
+GRANT ALL ON *.* TO 'sql2'@'%';
+
+FLUSH PRIVILEGES;
+
+SET @@SESSION.SQL_LOG_BIN=1;

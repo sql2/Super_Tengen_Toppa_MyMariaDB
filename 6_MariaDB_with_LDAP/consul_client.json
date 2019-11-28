@@ -1,0 +1,46 @@
+{
+  "datacenter"     : "Marvel_DC",
+  "client_addr"    : "0.0.0.0",
+  "advertise_addr" : "172.16.60.1",
+  "server"         : false,
+  "bootstrap"      : false,
+  "log_level"      : "INFO",
+  "data_dir"       : "/tmp/consul",
+  "dns_config": {
+    "allow_stale"  : true,
+    "node_ttl"     : "60s",
+    "only_passing" : true,
+    "service_ttl"  : { 
+                        "*": "10s"
+                     }   
+  },
+  "retry_join" :
+  [
+    "172.16.20.1",
+    "172.16.20.2",
+    "172.16.20.3"
+  ],
+  "ui"                   : false,
+  "leave_on_terminate"   : true,
+  "enable_script_checks" : true,
+  "disable_update_check" : true,
+  "watches": [
+    {   
+      "type" : "event",
+      "name" : "deploy",
+      "args" : ["/root/provisioning.sh"]
+    }  
+  ],
+  "service" : {   
+        "id"       : "mariadb-cluster",
+        "name"     : "mariadb-cluster",
+        "address"  : "",
+        "tags" : [ 
+           "linux",
+           "mariadb"
+        ],
+        "meta" : {
+           "meta"  : "You are a meta." 
+        }
+  }
+}
