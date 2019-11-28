@@ -25,14 +25,14 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 # -----------------------------------------------------------------------------
 # Install additional packages
 # -----------------------------------------------------------------------------
-RUN yum -y --setopt=tsflags=nodocs install epel-release wget unzip dnsmasq bind-utils jq
+RUN yum -y --setopt=tsflags=nodocs install epel-release wget unzip dnsmasq bind-utils 
 
 # -----------------------------------------------------------------------------
 # Install jq
 # -----------------------------------------------------------------------------
-#ADD https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 /usr/local/bin/
-#RUN chmod +x /usr/local/bin/jq-linux64 && \
-#                mv /usr/local/bin/jq-linux64 /usr/local/bin/jq
+ADD https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 /usr/local/bin/
+RUN chmod +x /usr/local/bin/jq-linux64 && \
+                mv /usr/local/bin/jq-linux64 /usr/local/bin/jq
 
 # -----------------------------------------------------------------------------
 # Install Orchestrator
