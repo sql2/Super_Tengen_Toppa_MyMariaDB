@@ -1,78 +1,103 @@
 ###############################################################################
-# Dockerfile to build Mariadb container images
-# Based on Ubuntu 18.04
+# Dockerfile to build Orchestrator container images
+# Based on Centos 7
 ###############################################################################
 
-# Set the base image to Ubuntu 18.04
-FROM ubuntu:bionic
+# Set the base image to Centos 7
+FROM centos:7
 
 # File Author / Maintainer
 MAINTAINER hyeongchae@gmail.com 
 
 LABEL vendor="MySQL Korea User Group" \
-      description="MariaDB Server on Ubuntu Disco" \
-      version="10.4"
+      description="MariaDB Server on Centos 7" \
+      version="10.4.10"
 
-RUN sed -i 's/archive\.ubuntu/kr\.archive\.ubuntu/g' /etc/apt/sources.list
+# Update the repository sources list
+RUN yum -y --setopt=tsflags=nodocs update
 
-ENV DEBIAN_FRONTEND noninteractive
+# Install additional repository and add repository key
+RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 
-RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y software-properties-common && \
-    apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8 && \ 
-    add-apt-repository 'deb [arch=amd64] http://mirror.yongbok.net/mariadb/repo/10.4/ubuntu bionic main' && \
-    apt-get install -y apt-utils curl tzdata vim unzip iputils-ping lsb-core dnsmasq jq wget mysql-utilities 
+###############################################################################
+# BEGIN INSTALLATION
+###############################################################################
+# -----------------------------------------------------------------------------
+# Install additional packages
+# -----------------------------------------------------------------------------
+RUN yum -y --setopt=tsflags=nodocs install epel-release wget unzip dnsmasq bind-utils
+
+
+# -----------------------------------------------------------------------------
+# Install jq
+# -----------------------------------------------------------------------------
+ADD https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 /usr/local/bin/
+RUN chmod +x /usr/local/bin/jq-linux64 && \
+                mv /usr/local/bin/jq-linux64 /usr/local/bin/jq
+
+# -----------------------------------------------------------------------------
+# Install IPA Client
+# -----------------------------------------------------------------------------
+RUN yum -y --setopt=tsflags=nodocs install freeipa-client ipa-admintools pam-devel 
+
 
 # -----------------------------------------------------------------------------
 # Install MariaDB Server
 # -----------------------------------------------------------------------------
-RUN apt-get install -y mariadb-server mariadb-client
+COPY MariaDB.repo /etc/yum.repos.d/MariaDB.repo
 
-COPY 50-server.cnf  /etc/mysql/mariadb.conf.d/50-server.cnf 
-RUN chown root:root /etc/mysql/mariadb.conf.d/50-server.cnf
+RUN yum -y update && yum -y --setopt=tsflags=nodocs install MariaDB-server
+
+COPY mysql-clients.cnf server.cnf /etc/my.cnf.d/
+
+COPY mariadb /etc/pam.d/mariadb
+
 
 # -----------------------------------------------------------------------------
-# Install consul
+# Install pmm-client, pt-xtrabackup
 # -----------------------------------------------------------------------------
-ADD https://releases.hashicorp.com/consul/1.6.1/consul_1.6.1_linux_amd64.zip /root/
-RUN unzip /root/consul_1.6.1_linux_amd64.zip -d /root/ && \
-    rm -f /root/consul_1.6.1_linux_amd64.zip && \
+RUN yum -y --setopt=tsflags=nodocs install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+RUN percona-release disable all
+RUN percona-release enable tools
+RUN yum -y --setopt=tsflags=nodocs install pmm-client percona-xtrabackup
+
+
+# -----------------------------------------------------------------------------
+# Install Consul
+# -----------------------------------------------------------------------------
+ADD https://releases.hashicorp.com/consul/1.6.2/consul_1.6.2_linux_amd64.zip /root/
+RUN unzip /root/consul_1.6.2_linux_amd64.zip -d /root/ && \
+    rm -f /root/consul_1.6.2_linux_amd64.zip && \
     mv /root/consul /usr/local/bin/ && \
     mkdir -p /etc/consul.d/
 
 COPY consul_client.json /etc/consul.d/consul_client.json
 
-# -----------------------------------------------------------------------------
-# Install pmm-client, pt-xtrabackup
-# -----------------------------------------------------------------------------
-ADD https://repo.percona.com/apt/percona-release_latest.generic_all.deb /root/
-RUN dpkg -i /root/percona-release_latest.generic_all.deb && \
-    percona-release enable-only ps-80 release && \
-    percona-release enable tools release && \
-    apt-get update -y && \
-    apt-get install -y pmm-client percona-xtrabackup 
 
 # -----------------------------------------------------------------------------
 # Install dnsmasq
 # -----------------------------------------------------------------------------
 COPY 10-consul /etc/dnsmasq.d
 
+
 # -----------------------------------------------------------------------------
 # Copy script utility
 # -----------------------------------------------------------------------------
-COPY entrypoint.sh /root/entrypoint.sh
+COPY entrypoint.sh   /root/entrypoint.sh
 COPY provisioning.sh /root/provisioning.sh
 RUN chmod a+x /root/entrypoint.sh
 RUN chmod a+x /root/provisioning.sh
 
+
 # -----------------------------------------------------------------------------
 # Clear
 # -----------------------------------------------------------------------------
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN yum -y clean all && \
+    rm -rf /var/cache/yum/*
 
 ############################## INSTALLATION END ###############################
 
-# Expose the default http port
+# Expose the default MySQL/Mariadb port
 EXPOSE 3306
 
 # Start service on run container

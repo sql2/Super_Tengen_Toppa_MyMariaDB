@@ -7,7 +7,7 @@ export HOSTNAME="$CONTAINER.example.test"
 docker stop $CONTAINER 2>&1
 docker rm   $CONTAINER 2>&1
 
-docker run --name  $CONTAINER \
+docker run --name $CONTAINER \
 	--hostname $HOSTNAME \
 	--net marvel_dc \
 	--dns-search "example.test" \

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 # encoding: UTF-8
 set -e
 
@@ -21,18 +21,30 @@ consul agent -config-file=/etc/consul.d/consul_client.json &
 MYSQL_REPORT_HOST=$(/sbin/ip route | awk '/kernel/ { print $9 }')
 MYSQL_SERVER_ID="${MYSQL_REPORT_HOST//./}"
 
-sed -i -e "s/#HOSTNAME/${HOSTNAME_SHORT}/g"       /etc/mysql/mariadb.conf.d/50-server.cnf 
-sed -i -e "s/#REPORT_HOST/${MYSQL_REPORT_HOST}/g" /etc/mysql/mariadb.conf.d/50-server.cnf
-sed -i -e "s/#SERVER_ID/${MYSQL_SERVER_ID}/g"     /etc/mysql/mariadb.conf.d/50-server.cnf
+sed -i -e "s/#HOSTNAME/${HOSTNAME_SHORT}/g"       /etc/my.cnf.d/server.cnf 
+sed -i -e "s/#REPORT_HOST/${MYSQL_REPORT_HOST}/g" /etc/my.cnf.d/server.cnf
+sed -i -e "s/#SERVER_ID/${MYSQL_SERVER_ID}/g"     /etc/my.cnf.d/server.cnf
 
-SOCKET="/var/run/mysqld/mysqld.sock"
-CMD=(mysql -uroot --socket="$SOCKET")
+DATADIR="/var/lib/mysql"
+SOCKETDIR="/var/lib/mysql"
+SOCKET="/var/lib/mysql/mysql.sock"
+CMD=(mysql --protocol=socket -uroot --socket="$SOCKET")
 
-echo '[Entrypoint] starting database.'
-mysqld_safe &
+rm -rf "$DATADIR"
+mkdir -p "$DATADIR"
+chown -R mysql:mysql "$DATADIR"
+#> /var/lib/mysql/error.log
 
-if [ -z "" ];
-then
+echo '[Entrypoint] Initializing database.'
+mysql_install_db --user=mysql \
+	--basedir=/usr \
+	--datadir=$DATADIR
+echo '[Entrypoint] Database initialized.'
+
+echo '[Entrypoint] Database Starting.'
+mysqld --skip-networking --socket="$SOCKET" &
+
+if [ ! -z " " ] ; then
   for i in {30..0}; do
     if mysqladmin --socket="$SOCKET" ping &>/dev/null; then
       break
@@ -46,8 +58,9 @@ then
   fi
 fi
 
+echo "[Entrypoint] Populate TimeZone..."
 # With "( .. ) 2> /dev/null" suppress any std[out/err].
-mysql_tzinfo_to_sql --leap /usr/share/zoneinfo/Asia/Seoul | "${CMD[@]}" mysql --force 2> /dev/null
+(mysql_tzinfo_to_sql /usr/share/zoneinfo/Asia | "${CMD[@]}" mysql --force) 2> /dev/null
 
 echo "[Entrypoint] Create users."
 "${CMD[@]}" <<-EOSQL
@@ -59,14 +72,10 @@ DROP DATABASE IF EXISTS test;
 CREATE DATABASE IF NOT EXISTS dummy;
 CREATE TABLE dummy.tbl ( col int );
 
--- Backup
-CREATE USER 'backupuser'@'localhost' IDENTIFIED BY 'Password';
-GRANT RELOAD, LOCK TABLES, PROCESS, REPLICATION CLIENT ON *.* TO 'backupuser'@'localhost';
-
--- Orchestrator database
+-- Orch database
 CREATE DATABASE IF NOT EXISTS orchestrator;
 
--- Orchestrator account
+-- Orch account
 GRANT ALL PRIVILEGES ON orchestrator.* TO 'orchestrator'@'%' IDENTIFIED BY 'orchestrator';
 GRANT SUPER, PROCESS, REPLICATION SLAVE, RELOAD ON *.* TO 'orchestrator'@'%';
 GRANT ALL PRIVILEGES ON orchestrator.* TO 'orchestrator'@'localhost' IDENTIFIED BY 'orchestrator';
@@ -75,25 +84,30 @@ GRANT ALL PRIVILEGES ON orchestrator.* TO 'orchestrator'@'localhost' IDENTIFIED 
 
 -- Replication
 CHANGE MASTER TO MASTER_USER = 'repl', MASTER_PASSWORD = 'repl';
-GRANT REPLICATION SLAVE ON *.* TO 'repl'@'172.16.%' IDENTIFIED BY 'repl';
+GRANT REPLICATION SLAVE ON *.* TO 'repl'@'172.16.40.%' IDENTIFIED BY 'repl';
 
 -- ProxySQL
 GRANT ALL ON *.* TO 'admin'@'%' IDENTIFIED BY 'admin' WITH GRANT OPTION;
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX ON *.* TO 'sandbox'@'%' IDENTIFIED BY 'sandbox';
-GRANT SELECT, CREATE USER, REPLICATION CLIENT, SHOW DATABASES, SUPER, PROCESS ON *.* TO 'monitor'@'%' IDENTIFIED BY 'monit0r';
+GRANT SELECT, CREATE USER, REPLICATION CLIENT, SHOW DATABASES, SUPER, PROCESS ON *.* TO 'monitor'@'%' IDENTIFIED BY 'monitor';
 
 -- PMM
 CREATE USER IF NOT EXISTS 'pmm'@'%' IDENTIFIED BY 'pass';
 GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
 GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 
+-- LDAP PAM Plugin
+CREATE USER 'sql2'@'%' IDENTIFIED VIA pam USING 'mariadb';
+GRANT ALL ON *.* TO 'sql2'@'%';
+
 FLUSH PRIVILEGES;
 
 SET @@SESSION.SQL_LOG_BIN=1;
 EOSQL
 
-echo "[Entrypoint] shutdown database."
+echo '[Entrypoint] MySQL shutdown.'
 mysqladmin shutdown -uroot --socket="$SOCKET"
 
-echo "[Entrypoint] restarting database."
+echo '[Entrypoint] MySQL init process done. Ready for start up.'
 mysqld_safe
+
