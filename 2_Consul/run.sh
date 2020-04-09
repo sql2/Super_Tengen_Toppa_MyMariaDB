@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export BIND="0.0.0.0"
-export CONTAINER="consul_s1"
+export CONTAINER="consul-server-01"
 export HOSTNAME="$CONTAINER.example.test"
 
 docker stop $CONTAINER 2>&1
