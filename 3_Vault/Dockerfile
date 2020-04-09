@@ -11,7 +11,7 @@ MAINTAINER hyeongchae@gmail.com
 
 LABEL vendor="MySQL Korea User Group" \
       description="HashiCorp's Vault on Centos 7" \
-      version="1.3.0"
+      version="1.4.0"
 
 # Update the repository sources list
 RUN yum -y --setopt=tsflags=nodocs update
@@ -30,9 +30,9 @@ RUN yum -y --setopt=tsflags=nodocs install unzip dnsmasq bind-utils
 # -----------------------------------------------------------------------------
 # Install consul
 # -----------------------------------------------------------------------------
-ADD https://releases.hashicorp.com/consul/1.6.2/consul_1.6.2_linux_amd64.zip /root/
-RUN unzip /root/consul_1.6.2_linux_amd64.zip -d /root/ && \
-    rm -f /root/consul_1.6.2_linux_amd64.zip && \
+ADD https://releases.hashicorp.com/consul/1.7.2/consul_1.7.2_linux_amd64.zip /root/
+RUN unzip /root/consul_1.7.2_linux_amd64.zip -d /root/ && \
+    rm -f /root/consul_1.7.2_linux_amd64.zip && \
     mv /root/consul /usr/local/bin/ && \
     mkdir -p /etc/consul.d/
 
@@ -41,9 +41,9 @@ COPY consul_client.json /etc/consul.d/consul_client.json
 # -----------------------------------------------------------------------------
 # Install vault
 # -----------------------------------------------------------------------------
-ADD https://releases.hashicorp.com/vault/1.3.0/vault_1.3.0_linux_amd64.zip /root/
-RUN unzip /root/vault_1.3.0_linux_amd64.zip -d /root/ && \
-    rm -f /root/vault_1.3.0_linux_amd64.zip && \
+ADD https://releases.hashicorp.com/vault/1.4.0/vault_1.4.0_linux_amd64.zip /root/
+RUN unzip /root/vault_1.4.0_linux_amd64.zip -d /root/ && \
+    rm -f /root/vault_1.4.0_linux_amd64.zip && \
     mv /root/vault /usr/local/bin/ && \
     mkdir -p /etc/vault.d/
 
