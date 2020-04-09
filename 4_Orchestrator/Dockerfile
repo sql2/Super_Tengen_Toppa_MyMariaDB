@@ -37,8 +37,8 @@ RUN chmod +x /usr/local/bin/jq-linux64 && \
 # -----------------------------------------------------------------------------
 # Install Orchestrator
 # -----------------------------------------------------------------------------
-RUN yum -y --setopt=tsflags=nodocs install https://github.com/github/orchestrator/releases/download/v3.1.2/orchestrator-3.1.2-1.x86_64.rpm && \
-    yum -y --setopt=tsflags=nodocs install https://github.com/github/orchestrator/releases/download/v3.1.2/orchestrator-cli-3.1.2-1.x86_64.rpm
+RUN yum -y --setopt=tsflags=nodocs install https://github.com/github/orchestrator/releases/download/v3.1.4/orchestrator-3.1.4-1.x86_64.rpm && \
+    yum -y --setopt=tsflags=nodocs install https://github.com/github/orchestrator/releases/download/v3.1.4/orchestrator-cli-3.1.4-1.x86_64.rpm
 
 
 COPY orchestrator.conf.json /etc/orchestrator.conf.json
@@ -48,9 +48,9 @@ RUN chown root:root /etc/orchestrator.conf.json && \
 # -----------------------------------------------------------------------------
 # Install consul
 # -----------------------------------------------------------------------------
-ADD https://releases.hashicorp.com/consul/1.6.2/consul_1.6.2_linux_amd64.zip /root/
-RUN unzip /root/consul_1.6.2_linux_amd64.zip -d /root/ && \
-    rm -f /root/consul_1.6.2_linux_amd64.zip && \
+ADD https://releases.hashicorp.com/consul/1.7.2/consul_1.7.2_linux_amd64.zip /root/
+RUN unzip /root/consul_1.7.2_linux_amd64.zip -d /root/ && \
+    rm -f /root/consul_1.7.2_linux_amd64.zip && \
     mv /root/consul /usr/local/bin/ && \
     mkdir -p /etc/consul.d/
 
