@@ -16,3 +16,4 @@ docker run --name $CONTAINER \
 		--detach \
 		orchestrator	
 
+echo "http://127.0.0.1:3000"

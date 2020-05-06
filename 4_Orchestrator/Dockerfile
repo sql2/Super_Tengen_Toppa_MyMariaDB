@@ -11,7 +11,7 @@ MAINTAINER hyeongchae@gmail.com
 
 LABEL vendor="MySQL Korea User Group" \
       description="GitHub's Orchestrator on Centos 7" \
-      version="3.1.2"
+      version="3.1.4"
 
 # Update the repository sources list
 RUN yum -y --setopt=tsflags=nodocs update
