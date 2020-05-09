@@ -11,7 +11,7 @@ MAINTAINER hyeongchae@gmail.com
 
 LABEL vendor="MySQL Korea User Group" \
       description="MariaDB Server on Centos 7" \
-      version="10.4.10"
+      version="10.4 stable"
 
 # Update the repository sources list
 RUN yum -y --setopt=tsflags=nodocs update
@@ -50,8 +50,6 @@ RUN yum -y update && yum -y --setopt=tsflags=nodocs install MariaDB-server
 
 COPY mysql-clients.cnf server.cnf /etc/my.cnf.d/
 
-COPY mariadb /etc/pam.d/mariadb
-
 
 # -----------------------------------------------------------------------------
 # Install pmm-client, pt-xtrabackup
@@ -65,9 +63,9 @@ RUN yum -y --setopt=tsflags=nodocs install pmm-client percona-xtrabackup
 # -----------------------------------------------------------------------------
 # Install Consul
 # -----------------------------------------------------------------------------
-ADD https://releases.hashicorp.com/consul/1.6.2/consul_1.6.2_linux_amd64.zip /root/
-RUN unzip /root/consul_1.6.2_linux_amd64.zip -d /root/ && \
-    rm -f /root/consul_1.6.2_linux_amd64.zip && \
+ADD https://releases.hashicorp.com/consul/1.7.2/consul_1.7.2_linux_amd64.zip /root/
+RUN unzip /root/consul_1.7.2_linux_amd64.zip -d /root/ && \
+    rm -f /root/consul_1.7.2_linux_amd64.zip && \
     mv /root/consul /usr/local/bin/ && \
     mkdir -p /etc/consul.d/
 
