@@ -1,5 +1,6 @@
 {
   "datacenter"     : "Marvel_DC",
+  "node_name"      : "#NODE_NAME",
   "client_addr"    : "0.0.0.0",
   "advertise_addr" : "172.16.60.1",
   "server"         : false,

@@ -31,45 +31,10 @@ else
   fi
 fi
 
-### MySQL/MariaDB Deploy ###
 
-DATADIR="/var/lib/mysql"
-SOCKETDIR="/var/lib/mysql"
-SOCKET="/var/lib/mysql/mysql.sock"
-CMD=(mysql --protocol=socket -uroot --socket="$SOCKET")
-
-echo 'Database deleted.'
-rm -rf "$DATADIR"
-mkdir -p "$DATADIR"
-chown -R mysql:mysql "$DATADIR"
-
-HOSTNAME_SHORT=$(hostname -s)
-MYSQL_REPORT_HOST=$(/sbin/ip route | awk '/kernel/ { print $9 }')
-MYSQL_SERVER_ID="${MYSQL_REPORT_HOST//./}"
-
-echo 'server.cnf setting.'
-sed -i -e "s/#HOSTNAME/${HOSTNAME_SHORT}/g"       /etc/my.cnf.d/server.cnf
-sed -i -e "s/#REPORT_HOST/${MYSQL_REPORT_HOST}/g" /etc/my.cnf.d/server.cnf
-sed -i -e "s/#SERVER_ID/${MYSQL_SERVER_ID}/g"     /etc/my.cnf.d/server.cnf
-
-echo 'Initializing database.'
-mysql_install_db --user=mysql \
-    --basedir=/usr \
-    --datadir=$DATADIR
-echo 'Database initialized.'
-
-
-echo 'Database Starting.'
-systemctl start mariadb.service
-
-echo "Populate TimeZone..."
-# With "( .. ) 2> /dev/null" suppress any std[out/err].
-(mysql_tzinfo_to_sql /usr/share/zoneinfo/Asia | "${CMD[@]}" mysql --force) 2> /dev/null
-
-echo 'Create users.'
-"${CMD[@]}" < /root/create_user.sql
-
+####################
 ### Vault Deploy ###
+####################
 export VAULT_ADDR='http://vault.service.consul:8200'
 export VAULT_TOKEN='vault'
 
@@ -108,13 +73,15 @@ vault write auth/ldap/users/tesla groups=devteam policies=dev_policy
 
 ### 
 
-vault secrets enable database
+vault secrets disable database
+vault secrets enable  database
 
 # config
+HOST_IP=$(hostname -i)
 # The default root rotation setup for MySQL uses the ALTER USER syntax present in MySQL 5.7 and up
 vault write database/config/mariadb-database \
     plugin_name=mysql-database-plugin \
-    connection_url="{{username}}:{{password}}@tcp(mariadb-cluster.service.consul:3306)/" \
+    connection_url="{{username}}:{{password}}@tcp(${HOST_IP}:3306)/" \
     allowed_roles="mariadb-role" \
     username="admin" \
     password="admin"
@@ -146,9 +113,9 @@ vault write database/roles/mariadb-role \
 
 vault read database/creds/mariadb-role
 
-
-### Orchestrator Deploy ###
-
+####################
+### Orchestrator ###
+####################
 LOCAL_IP=$(awk 'END{print $1}' /etc/hosts)
 
 echo "--> Local IP Address: ${LOCAL_IP}"
@@ -269,6 +236,10 @@ else
   echo "--> Is master, ignore backup process."
 fi
 
+
+#######################
+### Consul Register ###
+#######################
 if [ -z $(consul kv get -recurse mysql/servers) ]
 then
   consul kv put mysql/servers $LOCAL_IP > /dev/null 2>&1
@@ -283,6 +254,9 @@ else
   consul kv put mysql/servers $VALUES > /dev/null 2>&1
 fi
 
+####################
+### PMM Register ###
+####################
 PMMSERVER_IP=$(consul kv get pmm-server)
 
 pmm-admin config --force --server ${PMMSERVER_IP}
@@ -294,7 +268,9 @@ pmm-admin add mysql --force --host ${LOCAL_IP} --user pmm --password pass
 pmm-admin list
 pmm-admin check-network –no-emoji
 
-### END ###
 
+######################
+### Consul Logging ###
+######################
 consul kv put mysql/${LOCAL_IP}/logs/provisioning @/var/log/provisioning.log > /dev/null 2>&1
 
