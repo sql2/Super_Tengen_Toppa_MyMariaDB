@@ -31,6 +31,9 @@ else
   fi
 fi
 
+####################
+### Orchestrator ###
+####################
 LOCAL_IP=$(awk 'END{print $1}' /etc/hosts)
 
 echo "--> Local IP Address: ${LOCAL_IP}"
@@ -151,6 +154,10 @@ else
   echo "--> Is master, ignore backup process."
 fi
 
+
+#######################
+### Consul Register ###
+#######################
 if [ -z $(consul kv get -recurse mysql/servers) ]
 then
   consul kv put mysql/servers $LOCAL_IP > /dev/null 2>&1
@@ -167,6 +174,10 @@ fi
 
 consul kv put mysql/${LOCAL_IP}/logs/provisioning @/var/log/provisioning.log > /dev/null 2>&1
 
+
+###################
+### PMM Register ###
+###################
 PMMSERVER_IP=$(consul kv get pmm-server)
 
 pmm-admin config --force --server ${PMMSERVER_IP}
