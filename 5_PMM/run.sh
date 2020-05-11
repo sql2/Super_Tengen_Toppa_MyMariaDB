@@ -24,4 +24,6 @@ docker run --name pmm-server \
 	--detach \
 	percona/pmm-server
 
-docker exec -it consul_s1 consul kv put pmm-server "172.16.50.1"
+docker exec -it consul-server-01 consul kv put pmm-server "172.16.50.1"
+
+echo "http://127.0.0.1:580"
