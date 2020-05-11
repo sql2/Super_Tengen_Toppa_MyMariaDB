@@ -7,7 +7,7 @@ export HOSTNAME="$CONTAINER.example.test"
 docker stop $CONTAINER 2>&1
 docker rm   $CONTAINER 2>&1
 
-sudo setsebool -P container_manage_cgroup 1
+#sudo setsebool -P container_manage_cgroup 1
 
 docker run --privileged --cap-add SYS_ADMIN  --security-opt seccomp=unconfined --name $CONTAINER \
 	--hostname $HOSTNAME \

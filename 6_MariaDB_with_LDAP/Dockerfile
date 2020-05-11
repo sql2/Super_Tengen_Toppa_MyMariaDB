@@ -11,7 +11,7 @@ MAINTAINER hyeongchae@gmail.com
 
 LABEL vendor="MySQL Korea User Group" \
       description="MariaDB Server on Centos 7" \
-      version="10.4.10"
+      version="10.4 stable"
 
 ENV container docker
 
