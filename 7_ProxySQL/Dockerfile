@@ -11,7 +11,7 @@ MAINTAINER hyeongchae@gmail.com
 
 LABEL vendor="hyeongchae" \
       description="ProxySQL on Centos 7" \
-      version="2.0.7"
+      version="2.0.10"
 
 # Update the repository sources list
 RUN yum -y --setopt=tsflags=nodocs update
@@ -47,9 +47,9 @@ COPY proxysql.cnf /etc/proxysql.cnf
 # -----------------------------------------------------------------------------
 # Install consul
 # -----------------------------------------------------------------------------
-ADD https://releases.hashicorp.com/consul/1.6.1/consul_1.6.1_linux_amd64.zip /root/
-RUN unzip /root/consul_1.6.1_linux_amd64.zip -d /root/ && \
-    rm -f /root/consul_1.6.1_linux_amd64.zip && \
+ADD https://releases.hashicorp.com/consul/1.7.2/consul_1.7.2_linux_amd64.zip /root/
+RUN unzip /root/consul_1.7.2_linux_amd64.zip -d /root/ && \
+    rm -f /root/consul_1.7.2_linux_amd64.zip && \
     mv /root/consul /usr/local/bin/ && \
     mkdir -p /etc/consul.d/
 
