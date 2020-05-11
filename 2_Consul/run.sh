@@ -22,3 +22,5 @@ docker run --name  $CONTAINER \
 	--publish ${BIND}:8600:8600/udp \
 	--detach \
 	consul-server
+
+echo "http://127.0.0.1:8500"

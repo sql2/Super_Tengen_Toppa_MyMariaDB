@@ -1,5 +1,5 @@
 # Enable forward lookup of the 'consul' domain:
-server=/consul/127.0.0.11#8600
+server=/consul/127.0.0.1#8600
 
 # Uncomment and modify as appropriate to enable reverse DNS lookups for
 # common netblocks found in RFC 1918, 5735, and 6598:
