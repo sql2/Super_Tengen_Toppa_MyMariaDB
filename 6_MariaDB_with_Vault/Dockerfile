@@ -25,7 +25,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 # -----------------------------------------------------------------------------
 # Install additional packages
 # -----------------------------------------------------------------------------
-RUN yum -y --setopt=tsflags=nodocs install epel-release wget unzip dnsmasq bind-utils iptables-services
+RUN yum -y --setopt=tsflags=nodocs install epel-release wget unzip dnsmasq bind-utils 
 
 
 # -----------------------------------------------------------------------------
