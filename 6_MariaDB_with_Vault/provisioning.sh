@@ -75,7 +75,7 @@ vault secrets disable database
 vault secrets enable  database
 
 ##
-sleep 5
+sleep 10
 
 # config
 # The default root rotation setup for MySQL uses the ALTER USER syntax present in MySQL 5.7 and up
