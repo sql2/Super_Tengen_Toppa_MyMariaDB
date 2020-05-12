@@ -107,7 +107,7 @@ RUN yum -y clean all && \
 ############################## INSTALLATION END ###############################
 
 # Expose the default MySQL/Mariadb port
-EXPOSE 53/udp 53 80 443 389 636 88 464 88/udp 464/udp 123/udp 3306
+EXPOSE 3306
 
 # Start service on run container
 ENTRYPOINT ["/root/entrypoint.sh"]

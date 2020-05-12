@@ -59,7 +59,7 @@ vault write auth/ldap/config \
     groupattr="cn" \
     insecure_tls=false
 
-vault read  auth/ldap/config
+vault read auth/ldap/config
 
 vault write auth/ldap/groups/dbateam policies=dba_policy
 vault write auth/ldap/groups/devteam policies=dev_policy
@@ -71,16 +71,17 @@ vault write auth/ldap/users/tesla groups=devteam policies=dev_policy
 
 #vault token capabilities secret/data/devteam
 
-### 
-
 vault secrets disable database
 vault secrets enable  database
 
+##
+sleep 5
+
 # config
-HOST_IP=$(hostname -i)
 # The default root rotation setup for MySQL uses the ALTER USER syntax present in MySQL 5.7 and up
+HOST_IP=$(hostname -i)
 vault write database/config/mariadb-database \
-    plugin_name=mysql-database-plugin \
+    plugin_name="mysql-database-plugin" \
     connection_url="{{username}}:{{password}}@tcp(${HOST_IP}:3306)/" \
     allowed_roles="mariadb-role" \
     username="admin" \
@@ -97,7 +98,7 @@ vault write database/config/mariadb-database \
 
 # rules
 vault write database/roles/mariadb-role \
-    db_name=mariadb-database \
+    db_name="mariadb-database" \
     creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';" \
     default_ttl="1h" \
     max_ttl="24h"
@@ -105,7 +106,7 @@ vault write database/roles/mariadb-role \
 
 # CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT SELECT ON `fooapp\_%`.* TO '{{name}}'@'%';
 # base64
-#$ vault write database/roles/mariadb-role \
+#vault write database/roles/mariadb-role \
 #   db_name=mariadb-database \
 #   creation_statements="Q1JFQVRFIFVTRVIgJ3t7bmFtZX19J0AnJScgSURFTlRJRklFRCBCWSAne3twYXNzd29yZH19JzsgR1JBTlQgU0VMRUNUIE9OIGBmb29hcHBcXyVgLiogVE8gJ3t7bmFtZX19J0AnJSc7" \
 #   default_ttl="1h" \
@@ -272,5 +273,6 @@ pmm-admin check-network –no-emoji
 ######################
 ### Consul Logging ###
 ######################
-consul kv put mysql/${LOCAL_IP}/logs/provisioning @/var/log/provisioning.log > /dev/null 2>&1
+DATETIME=$(date +%F-%T)
+consul kv put mysql/logs/${DATETIME}/${LOCAL_IP}/provisioning @/var/log/provisioning.log > /dev/null 2>&1
 
