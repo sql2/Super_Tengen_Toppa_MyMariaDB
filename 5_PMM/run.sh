@@ -14,7 +14,6 @@ docker create --name pmm-data \
 docker run --name pmm-server \
 	--hostname pmm-server \
 	--volumes-from pmm-data \
-	--restart always \
 	--net marvel_dc \
 	--dns-search "example.test" \
 	--ip 172.16.50.1 \
